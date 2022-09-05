@@ -1,0 +1,110 @@
+---
+title: "Chapter 2 exercises"
+format: gfm
+---
+```{r, echo = FALSE, warn = FALSE, message = FALSE}
+library(readr)
+library(dplyr)
+library(ggplot2)
+```
+
+## Applied exercises
+
+### This exercise relates to the College data set, which can be found in the file College.csv
+
+(a) Use the read.csv() function to read the data into R. Call the loaded data college. Make sure that you have the directory set to the correct location for the data.
+```{r, warn = FALSE, message = FALSE}
+college <-read_csv("../data/college.csv")
+
+```
+
+(b) Look at the data using the fix() function. You should notice that the first column is just the name of each university. We don’t really want R to treat this as data. However, it may be handy to have these names for later.
+```{r}
+# I am personally not a fan of using rownames. I think it's better to keep this row as a character column.
+college <- college %>% tibble::column_to_rownames("...1")
+```
+
+(c)
+
+```{r}
+# i 
+summary(college)
+
+# ii
+pairs(college[,2:11])
+
+# iii
+college %>% 
+  ggplot(aes(Outstate, Private)) +
+  geom_boxplot()
+
+# iv
+college <- college %>% 
+  mutate(Elite = if_else(Top10perc > 50, "Yes", "No"))
+
+college %>% group_by(Elite) %>% 
+  summarise(n = n())
+
+# v
+college %>% 
+  ggplot(aes(Accept)) +
+  geom_histogram()
+
+# vi
+college %>% 
+  ggplot(aes(Apps, Accept)) + 
+  geom_point()
+
+# weird outlier
+college[which(college$Accept == max(college$Accept)),]
+```
+
+### This exercise involves the Auto data set studied in the lab.
+```{r, message = FALSE}
+Auto <- read_csv("../data/Auto.csv")
+```
+
+Which of the predictors are quantitative, and which are qualitative?
+```{r}
+numeric <- lapply(Auto, function(x) is.numeric(x))
+numeric
+```
+
+(b) What is the range of each quantitative predictor? You can answer this using the range() function.
+```{r}
+Auto_num <- Auto[which(numeric == TRUE)]
+lapply(Auto_num, function(x) range(x))
+```
+(c) What is the mean and standard deviation of each quantitative predictor?
+```{r}
+lapply(Auto_num, function(x) {
+  list(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+)
+```
+
+(d) Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains?
+```{r}
+Auto_num %>% slice(-(10:85)) %>% 
+  lapply(function(x) {
+  list(
+    mean = mean(x),
+    sd = sd(x)
+  )
+}
+)
+```
+
+(e) Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. Comment on your findings.
+```{r}
+
+```
+
+(f) Suppose that we wish to predict gas mileage (mpg) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+```{r}
+
+```
+
